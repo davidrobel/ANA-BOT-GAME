@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: ana-bot-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: bot_ana
+      MYSQL_ROOT_PASSWORD: your_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: ./backend
+    container_name: ana-bot-backend
+    restart: always
+    environment:
+      DATABASE_URL: "mysql://root:your_password@db:3306/bot_ana"
+      PORT: 3000
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/.wwebjs_auth:/app/.wwebjs_auth
+      - ./backend/.wwebjs_cache:/app/.wwebjs_cache
+
+  frontend:
+    build: ./frontend
+    container_name: ana-bot-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  mysql_data:

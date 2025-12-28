@@ -25,7 +25,7 @@ Before starting, ensure you have the following installed on your system:
    ```
 3. Ensure you have a user with full privileges. For development, you might use:
    - **User**: `root`
-   - **Password**: `02s90dc` (As per project defaults)
+   - **Password**: `your_password` 
 
 ---
 
@@ -44,7 +44,7 @@ Before starting, ensure you have the following installed on your system:
    ```
    Create a `.env` file in the `backend` folder:
    ```env
-   DATABASE_URL="mysql://root:02s90dc@localhost:3306/bot_ana"
+   DATABASE_URL="mysql://root:your_password@localhost:3306/bot_ana"
    PORT=3000
    ```
 
@@ -154,7 +154,33 @@ Highly recommended to serve the Frontend on port 80 and the API on port 3000.
 
 ---
 
+## 🐋 7. Deployment - Docker (Recommended)
+
+Docker is the easiest way to deploy everything at once, including the database.
+
+1. **Install Docker and Docker Compose** on your system.
+2. **Configure Passwords**: Open `docker-compose.yml` and change `your_password` to a secure one.
+3. **Run the Application**:
+   ```bash
+   docker-compose up -d --build
+   ```
+
+### Services created by Docker:
+- **db**: MySQL 8.0 accessible on port 3306.
+- **backend**: The Node.js API accessible on port 3000.
+- **frontend**: The Nginx server serving the build on port 80.
+
+### Useful Docker Commands:
+- **View logs**: `docker-compose logs -f`
+- **Stop app**: `docker-compose down`
+- **Restart after changes**: `docker-compose up -d --build`
+
+> [!IMPORTANT]
+> **Persistência de Dados**: O Docker está configurado para persistir a pasta `backend/uploads` (imagens) e as sessões do WhatsApp (`backend/.wwebjs_auth`). Se você deletar os containers, esses arquivos **não serão perdidos** pois estão mapeados para pastas locais no seu servidor.
+
+---
+
 ## ⚠️ Important Notes
 - **Security**: The `.gitignore` is already configured to skip `.env` and `.wwebjs_auth`. Never share these files.
 - **WhatsApp**: Keep your phone connected to the internet for the first sync.
-- **Builds**: Every time you change the code, remember to run `npm run build` again and restart the PM2 task (`pm2 restart all`).
+- **Builds**: Every time you change the code, remember to run `npm run build` again and restart the PM2 task (`pm2 restart all`). If using Docker, run `docker-compose up -d --build`.
