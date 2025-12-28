@@ -18,12 +18,13 @@ FROM node:18-slim
 
 WORKDIR /app
 
-# Install Chromium and dependencies for Puppeteer
+# Install Chromium and dependencies for Puppeteer + openssl for Prisma
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
     ca-certificates \
     procps \
+    openssl \
     libgbm-dev \
     libasound2 \
     libatk1.0-0 \

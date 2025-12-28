@@ -1,26 +1,28 @@
 #!/bin/sh
 
-# Function to wait for database
+# Function to wait for database using Prisma
 wait_for_db() {
-  echo "Waiting for database to be ready..."
+  echo "Checking database connection..."
   max_attempts=30
   attempt=1
   
-  # Try to connect to MySQL using the URL from environment
-  # We use prisma to check the connection
   while [ $attempt -le $max_attempts ]; do
-    npx prisma db push --preview-feature > /dev/null 2>&1
+    # Try to validate schema connection
+    ./node_modules/.bin/prisma db push --accept-data-loss > /dev/null 2>&1
     if [ $? -eq 0 ]; then
-      echo "Database is ready! (Attempt $attempt)"
+      echo "Connection successful! Database is ready."
       return 0
     fi
     
-    echo "Database is not ready yet... (Attempt $attempt/$max_attempts)"
+    echo "Waiting for MySQL... (Attempt $attempt/$max_attempts)"
     attempt=$((attempt + 1))
-    sleep 2
+    sleep 3
   done
   
-  echo "Error: Database timed out."
+  echo "ERROR: Could not connect to database after $max_attempts attempts."
+  # Print the URL for debugging (masked password)
+  DEBUG_URL=$(echo $DATABASE_URL | sed 's/:[^@]*@/:****@/')
+  echo "Tried connection string: $DEBUG_URL"
   return 1
 }
 
@@ -28,12 +30,12 @@ wait_for_db() {
 wait_for_db
 
 if [ $? -eq 0 ]; then
-  # Final push to ensure schema is synced
-  echo "Syncing database schema..."
-  npx prisma db push --accept-data-loss
+  # Ensure Prisma client is in sync with the DB in this environment
+  echo "Finalizing database setup..."
+  ./node_modules/.bin/prisma generate
   
   # Start the application
-  echo "Starting application..."
+  echo "🚀 Starting application..."
   node dist/index.js
 else
   exit 1
