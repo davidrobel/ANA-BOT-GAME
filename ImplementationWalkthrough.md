@@ -159,11 +159,18 @@ Highly recommended to serve the Frontend on port 80 and the API on port 3000.
 Docker is the easiest way to deploy everything at once, including the database.
 
 1. **Install Docker and Docker Compose** on your system.
-2. **Configure Passwords**: Open `docker-compose.yml` and change `your_password` to a secure one.
+2. **Configure Passwords**: 
+   - Rename `.env.example` to `.env`.
+   - Change `DB_PASSWORD` to your desired password.
 3. **Run the Application**:
    ```bash
    docker-compose up -d --build
    ```
+
+> [!CAUTION]
+> **Alteração de Senha após o primeiro Start**: Se você já rodou o Docker uma vez e decidir mudar a senha no `.env`, o MySQL não atualizará a senha automaticamente devido ao volume persistente. Para mudar a senha e limpar o banco:
+> 1. `docker-compose down -v` (Isso apaga os dados do banco!)
+> 2. `docker-compose up -d --build`
 
 ### Services created by Docker:
 - **db**: MySQL 8.0 accessible on port 3306.
