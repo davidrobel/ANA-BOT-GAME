@@ -67,14 +67,15 @@ class AIService {
             return response.data.message.content;
         } catch (error: any) {
             if (error.response) {
-                console.error(`[AI] Ollama Error (${error.response.status}):`, error.response.data);
+                console.error(`[AI] Ollama Error (${error.response.status}):`, JSON.stringify(error.response.data));
                 if (error.response.status === 404) {
-                    throw new Error(`Ollama: Modelo "${model}" não encontrado. Certifique-se de rodar "ollama pull ${model}" no seu servidor.`);
+                    throw new Error(`Ollama: Modelo "${model}" não encontrado. Certifique-se de baixar o modelo usando o comando "ollama pull ${model}" no terminal do seu servidor.`);
                 }
+                throw new Error(`Ollama erro (${error.response.status}): ${JSON.stringify(error.response.data)}`);
             } else {
                 console.error('[AI] Ollama connection error:', error.message);
+                throw new Error(`Erro de conexão com Ollama: ${error.message}`);
             }
-            throw new Error('Falha ao comunicar com Ollama.');
         }
     }
 }

@@ -436,9 +436,12 @@ class WhatsAppService {
                     await this.client.sendMessage(chatId, `🏆 O usuário @${userName} venceu o jogo *${gameState.storyName}* e subiu de nível!`);
                 }
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error in game interaction:', error);
-            msg.reply('Ops, tive um probleminha para processar sua mensagem. Tente novamente.');
+            const errorMessage = error.message.includes('Ollama') || error.message.includes('IA')
+                ? `❌ Erro na IA: ${error.message}`
+                : 'Ops, tive um probleminha para processar sua mensagem. Tente novamente.';
+            msg.reply(errorMessage);
         }
     }
 
