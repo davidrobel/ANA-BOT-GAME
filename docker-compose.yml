@@ -12,6 +12,11 @@ services:
       - "${DB_PORT}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
@@ -21,7 +26,8 @@ services:
       DATABASE_URL: "mysql://root:${DB_PASSWORD}@db:3306/${DB_DATABASE}"
       PORT: 3000
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "${BACKEND_PORT}:3000"
     volumes:

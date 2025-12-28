@@ -1,13 +1,40 @@
 #!/bin/sh
 
-# Wait for database to be ready
-echo "Waiting for database to be ready..."
-# We can use npx prisma db push to sync schema without migration history for now, 
-# or prisma migrate deploy if migrations exist.
-# Let's use db push to ensure tables are created based on schema.prisma
+# Function to wait for database
+wait_for_db() {
+  echo "Waiting for database to be ready..."
+  max_attempts=30
+  attempt=1
+  
+  # Try to connect to MySQL using the URL from environment
+  # We use prisma to check the connection
+  while [ $attempt -le $max_attempts ]; do
+    npx prisma db push --preview-feature > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+      echo "Database is ready! (Attempt $attempt)"
+      return 0
+    fi
+    
+    echo "Database is not ready yet... (Attempt $attempt/$max_attempts)"
+    attempt=$((attempt + 1))
+    sleep 2
+  done
+  
+  echo "Error: Database timed out."
+  return 1
+}
 
-npx prisma db push --accept-data-loss
+# Run the wait function
+wait_for_db
 
-# Start the application
-echo "Starting application..."
-node dist/index.js
+if [ $? -eq 0 ]; then
+  # Final push to ensure schema is synced
+  echo "Syncing database schema..."
+  npx prisma db push --accept-data-loss
+  
+  # Start the application
+  echo "Starting application..."
+  node dist/index.js
+else
+  exit 1
+fi
