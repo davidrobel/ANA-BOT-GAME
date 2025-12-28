@@ -6,10 +6,10 @@ services:
     container_name: ana-bot-db
     restart: always
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-bot_ana}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-02s90dc}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "${DB_PORT:-3306}:3306"
+      - "${DB_PORT}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -18,12 +18,12 @@ services:
     container_name: ana-bot-backend
     restart: always
     environment:
-      DATABASE_URL: "mysql://root:${DB_PASSWORD:-02s90dc}@db:3306/${DB_DATABASE:-bot_ana}"
+      DATABASE_URL: "mysql://root:${DB_PASSWORD}@db:3306/${DB_DATABASE}"
       PORT: 3000
     depends_on:
       - db
     ports:
-      - "${BACKEND_PORT:-3000}:3000"
+      - "${BACKEND_PORT}:3000"
     volumes:
       - ./backend/uploads:/app/uploads
       - ./backend/.wwebjs_auth:/app/.wwebjs_auth
@@ -36,7 +36,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "${FRONTEND_PORT:-80}:80"
+      - "${FRONTEND_PORT}:80"
 
 volumes:
   mysql_data:

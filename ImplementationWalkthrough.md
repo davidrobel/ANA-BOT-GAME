@@ -159,9 +159,9 @@ Highly recommended to serve the Frontend on port 80 and the API on port 3000.
 Docker is the easiest way to deploy everything at once, including the database.
 
 1. **Install Docker and Docker Compose** on your system.
-2. **Configure Passwords**: 
+2. **Configure Passwords (MANDATORY)**: 
    - Rename `.env.example` to `.env`.
-   - Change `DB_PASSWORD` to your desired password.
+   - Change `DB_PASSWORD` to your desired password. All variables in `.env` must be defined.
 3. **Run the Application**:
    ```bash
    docker-compose up -d --build
