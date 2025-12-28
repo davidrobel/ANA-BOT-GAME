@@ -65,11 +65,12 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
+COPY start.sh ./
+
+# Make startup script executable
+RUN chmod +x start.sh
 
 EXPOSE 3000
 
-# Skip Chromium download in Puppeteer if we want to use the system one, 
-# but whatsapp-web.js usually downloads its own. 
-# We'll let it use the bundled one for simplicity in this case.
-
-CMD ["node", "dist/index.js"]
+# Run sync and start
+CMD ["./start.sh"]
