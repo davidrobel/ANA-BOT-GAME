@@ -45,10 +45,16 @@ class AIService {
     }
 
     private async generateOllamaResponse(config: any, systemPrompt: string, userMessage: string): Promise<string> {
-        const baseUrl = config.baseUrl || 'http://localhost:11434';
+        let baseUrl = config.baseUrl || 'http://localhost:11434';
+        // Normalize URL: remove trailing slash
+        if (baseUrl.endsWith('/')) {
+            baseUrl = baseUrl.slice(0, -1);
+        }
+
         const model = config.model || 'llama3';
 
         try {
+            console.log(`[AI] Calling Ollama at ${baseUrl}/api/chat with model ${model}`);
             const response = await axios.post(`${baseUrl}/api/chat`, {
                 model: model,
                 messages: [
@@ -59,8 +65,15 @@ class AIService {
             });
 
             return response.data.message.content;
-        } catch (error) {
-            console.error('Ollama error:', error);
+        } catch (error: any) {
+            if (error.response) {
+                console.error(`[AI] Ollama Error (${error.response.status}):`, error.response.data);
+                if (error.response.status === 404) {
+                    throw new Error(`Ollama: Modelo "${model}" não encontrado. Certifique-se de rodar "ollama pull ${model}" no seu servidor.`);
+                }
+            } else {
+                console.error('[AI] Ollama connection error:', error.message);
+            }
             throw new Error('Falha ao comunicar com Ollama.');
         }
     }
