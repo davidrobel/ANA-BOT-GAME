@@ -43,27 +43,29 @@ app.listen(PORT, async () => {
 
     // Seed initial data
     try {
-        // Admin user - Force reset for external login troubleshooting
-        const admin = await prisma.user.findUnique({ where: { login: 'admin' } });
-        const hashedAdminPassword = await bcrypt.hash('admin', 10);
+        const adminLogin = process.env.ADMIN_USER || 'admin';
+        const adminPass = process.env.ADMIN_PASSWORD || 'admin';
+
+        const admin = await prisma.user.findUnique({ where: { login: adminLogin } });
+        const hashedAdminPassword = await bcrypt.hash(adminPass, 10);
 
         if (!admin) {
             await prisma.user.create({
                 data: {
-                    login: 'admin',
+                    login: adminLogin,
                     password: hashedAdminPassword,
                     isAdmin: true,
                     name: 'Administrator'
                 }
             });
-            console.log('✅ Admin user "admin" created successfully');
+            console.log(`✅ Admin user "${adminLogin}" created successfully`);
         } else {
-            // Force password update to be sure it is 'admin'
+            // Force password update to match ENV to avoid "locked out" scenarios
             await prisma.user.update({
-                where: { login: 'admin' },
+                where: { login: adminLogin },
                 data: { password: hashedAdminPassword }
             });
-            console.log('ℹ️ Admin user "admin" updated (password reset to "admin")');
+            console.log(`ℹ️ Admin user "${adminLogin}" updated (password reset to match ENV)`);
         }
 
         // Default AI configs
