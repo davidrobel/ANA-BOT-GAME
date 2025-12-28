@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  login     String   @unique
+  password  String
+  name      String?
+  phone     String?  @unique
+  level     Int      @default(1)
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  progress  UserProgress[]
+  playedGames PlayedGame[]
+}
+
+model Game {
+  id          Int      @id @default(autoincrement())
+  name        String
+  prompt      String   @db.Text
+  solution    String   @db.Text
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  playedGames PlayedGame[]
+}
+
+model AIConfig {
+  id        Int      @id @default(autoincrement())
+  provider  String   @unique // chatgpt, ollama
+  apiKey    String?
+  baseUrl   String?  // for ollama (IP/Port)
+  prompt    String?  @db.Text
+  model     String?
+  isActive  Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+}
+
+model UserProgress {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  gameName  String
+  won       Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model PlayedGame {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  gameId    Int
+  game      Game     @relation(fields: [gameId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, gameId])
+}
+
+model WhatsappSession {
+  id          Int      @id @default(autoincrement())
+  status      String   @default("DISCONNECTED") // DISCONNECTED, CONNECTING, CONNECTED, FAILED
+  qrCode      String?  @db.Text
+  pairingCode String?
+  updatedAt   DateTime @updatedAt
+}
